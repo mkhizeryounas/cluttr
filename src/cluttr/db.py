@@ -9,7 +9,7 @@ from pgvector.asyncpg import register_vector
 
 if TYPE_CHECKING:
     from cluttr.config import MemoryConfig
-    from cluttr.models import Memory, SearchResult
+    from cluttr.models import Memory
 
 
 class DatabaseService:
