@@ -1,6 +1,46 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+function Logo({ className = "" }: { className?: string }) {
+  return (
+    <div className={`flex items-center gap-2 ${className}`}>
+      <div className="relative w-8 h-8">
+        {/* Brain/memory icon */}
+        <svg
+          viewBox="0 0 32 32"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-full h-full"
+        >
+          <defs>
+            <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#a855f7" />
+              <stop offset="50%" stopColor="#6366f1" />
+              <stop offset="100%" stopColor="#06b6d4" />
+            </linearGradient>
+          </defs>
+          {/* Outer circle */}
+          <circle cx="16" cy="16" r="14" stroke="url(#logoGradient)" strokeWidth="2" fill="none" />
+          {/* Inner connected nodes - representing memory/neural network */}
+          <circle cx="16" cy="10" r="2.5" fill="url(#logoGradient)" />
+          <circle cx="10" cy="18" r="2.5" fill="url(#logoGradient)" />
+          <circle cx="22" cy="18" r="2.5" fill="url(#logoGradient)" />
+          <circle cx="16" cy="22" r="2" fill="url(#logoGradient)" />
+          {/* Connecting lines */}
+          <path
+            d="M16 12.5V20M12 17L20 17M12.5 16.5L16 12.5L19.5 16.5"
+            stroke="url(#logoGradient)"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </div>
+      <span className="text-xl font-bold tracking-tight">cluttr</span>
+    </div>
+  );
+}
 
 function GitHubIcon({ className = "" }: { className?: string }) {
   return (
@@ -28,7 +68,7 @@ function CopyButton({ text }: { text: string }) {
   return (
     <button
       onClick={handleCopy}
-      className="absolute top-4 right-4 px-3 py-1 text-xs bg-white/10 hover:bg-white/20 rounded-md transition-colors"
+      className="absolute top-4 right-4 px-3 py-1.5 text-xs font-medium bg-white/10 hover:bg-white/20 rounded-lg transition-all hover:scale-105"
     >
       {copied ? "Copied!" : "Copy"}
     </button>
@@ -170,15 +210,21 @@ const features = [
 ];
 
 export default function Home() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
     <div className="min-h-screen">
       {/* Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0a]/80 backdrop-blur-md border-b border-white/10">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <a href="/" className="text-xl font-bold">
-            cluttr
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#050507]/80 backdrop-blur-xl border-b border-white/5">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+          <a href="/" className="hover:opacity-80 transition-opacity">
+            <Logo />
           </a>
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4 sm:gap-6">
             <a
               href="#features"
               className="text-sm text-gray-400 hover:text-white transition-colors hidden sm:block"
@@ -195,7 +241,7 @@ export default function Home() {
               href="https://github.com/mkhizeryounas/cluttr"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors"
+              className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-300 hover:text-white bg-white/5 hover:bg-white/10 rounded-lg transition-all"
             >
               <GitHubIcon />
               <span className="hidden sm:inline">GitHub</span>
@@ -205,20 +251,51 @@ export default function Home() {
       </nav>
 
       {/* Hero */}
-      <header className="pt-32 pb-20 px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-            Long-term memory for{" "}
-            <span className="gradient-text">AI agents</span>
+      <header className="hero-bg grid-bg pt-24 sm:pt-32 pb-20 px-4 sm:px-6 min-h-screen flex items-center">
+        {/* Glow orbs */}
+        <div className="glow-orb glow-orb-1" />
+        <div className="glow-orb glow-orb-2" />
+        <div className="glow-orb glow-orb-3" />
+
+        <div className="max-w-4xl mx-auto text-center relative z-10 w-full">
+          <div
+            className={`transition-all duration-1000 ${
+              mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            }`}
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm text-gray-400 mb-8">
+              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+              Open source &amp; free to use
+            </div>
+          </div>
+
+          <h1
+            className={`text-4xl sm:text-5xl md:text-7xl font-extrabold mb-6 leading-tight tracking-tight transition-all duration-1000 delay-100 ${
+              mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            }`}
+          >
+            Long-term memory
+            <br />
+            for <span className="gradient-text">AI agents</span>
           </h1>
-          <p className="text-lg md:text-xl text-gray-400 mb-10 max-w-2xl mx-auto">
+
+          <p
+            className={`text-base sm:text-lg md:text-xl text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed transition-all duration-1000 delay-200 ${
+              mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            }`}
+          >
             Add persistent memory to your AI agents with semantic search and
             automatic fact extraction. Built on PostgreSQL + pgvector.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+
+          <div
+            className={`flex flex-col sm:flex-row gap-4 justify-center mb-12 sm:mb-16 transition-all duration-1000 delay-300 ${
+              mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            }`}
+          >
             <a
               href="#quickstart"
-              className="px-8 py-3 bg-white text-black font-medium rounded-lg hover:bg-gray-200 transition-colors"
+              className="btn-glow px-8 py-3.5 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-purple-500/25 transition-all hover:-translate-y-0.5"
             >
               Get Started
             </a>
@@ -226,14 +303,18 @@ export default function Home() {
               href="https://github.com/mkhizeryounas/cluttr"
               target="_blank"
               rel="noopener noreferrer"
-              className="px-8 py-3 bg-white/10 text-white font-medium rounded-lg hover:bg-white/20 transition-colors flex items-center justify-center gap-2"
+              className="px-8 py-3.5 bg-white/5 text-white font-semibold rounded-xl border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all flex items-center justify-center gap-2 hover:-translate-y-0.5"
             >
               <GitHubIcon />
               View on GitHub
             </a>
           </div>
 
-          <div className="max-w-2xl mx-auto">
+          <div
+            className={`max-w-2xl mx-auto transition-all duration-1000 delay-500 ${
+              mounted ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-8 scale-95"
+            }`}
+          >
             <CodeBlock
               copyText={`from cluttr import Cluttr
 
@@ -281,27 +362,33 @@ async with memory:
       </header>
 
       {/* Features */}
-      <section id="features" className="py-20 px-6 bg-white/[0.02]">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
-            Everything you need for agent memory
-          </h2>
-          <p className="text-gray-400 text-center mb-16 max-w-2xl mx-auto">
-            Cluttr handles the complexity of memory management so you can focus
-            on building great AI experiences.
-          </p>
+      <section id="features" className="py-20 sm:py-28 px-4 sm:px-6 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-purple-500/5 via-transparent to-transparent" />
+        <div className="max-w-6xl mx-auto relative">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
+              Everything you need for{" "}
+              <span className="gradient-text">agent memory</span>
+            </h2>
+            <p className="text-gray-400 max-w-2xl mx-auto text-base sm:text-lg">
+              Cluttr handles the complexity of memory management so you can focus
+              on building great AI experiences.
+            </p>
+          </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {features.map((feature, index) => (
               <div
                 key={index}
-                className="p-6 rounded-xl bg-white/[0.03] border border-white/10 hover:border-white/20 transition-colors"
+                className="feature-card p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04]"
               >
-                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500/20 to-blue-500/20 flex items-center justify-center text-purple-400 mb-4">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500/20 to-indigo-500/20 flex items-center justify-center text-purple-400 mb-4">
                   {feature.icon}
                 </div>
                 <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
-                <p className="text-gray-400 text-sm">{feature.description}</p>
+                <p className="text-gray-400 text-sm leading-relaxed">
+                  {feature.description}
+                </p>
               </div>
             ))}
           </div>
@@ -309,23 +396,25 @@ async with memory:
       </section>
 
       {/* Quick Start */}
-      <section id="quickstart" className="py-20 px-6">
+      <section id="quickstart" className="py-20 sm:py-28 px-4 sm:px-6">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
-            Quick Start
-          </h2>
-          <p className="text-gray-400 text-center mb-16">
-            Get up and running in minutes.
-          </p>
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
+              Quick Start
+            </h2>
+            <p className="text-gray-400 text-base sm:text-lg">
+              Get up and running in minutes.
+            </p>
+          </div>
 
-          <div className="space-y-8">
+          <div className="space-y-8 sm:space-y-12">
             {/* Step 1 */}
-            <div className="flex gap-6">
-              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center font-bold">
+            <div className="flex gap-4 sm:gap-6">
+              <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center font-bold text-sm sm:text-base shadow-lg shadow-purple-500/25">
                 1
               </div>
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold mb-3">
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg sm:text-xl font-semibold mb-3">
                   Install the package
                 </h3>
                 <CodeBlock showHeader={false} copyText="uv add cluttr">
@@ -335,12 +424,12 @@ async with memory:
             </div>
 
             {/* Step 2 */}
-            <div className="flex gap-6">
-              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center font-bold">
+            <div className="flex gap-4 sm:gap-6">
+              <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center font-bold text-sm sm:text-base shadow-lg shadow-purple-500/25">
                 2
               </div>
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold mb-3">
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg sm:text-xl font-semibold mb-3">
                   Configure your provider
                 </h3>
                 <CodeBlock
@@ -413,12 +502,12 @@ async with memory:
             </div>
 
             {/* Step 3 */}
-            <div className="flex gap-6">
-              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center font-bold">
+            <div className="flex gap-4 sm:gap-6">
+              <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center font-bold text-sm sm:text-base shadow-lg shadow-purple-500/25">
                 3
               </div>
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold mb-3">
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg sm:text-xl font-semibold mb-3">
                   Start using memories
                 </h3>
                 <CodeBlock
@@ -501,19 +590,22 @@ async with memory:
       </section>
 
       {/* CTA */}
-      <section className="py-20 px-6 bg-gradient-to-b from-white/[0.02] to-transparent">
-        <div className="max-w-2xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Ready to add memory to your agents?
+      <section className="py-20 sm:py-28 px-4 sm:px-6 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-t from-purple-500/10 via-transparent to-transparent" />
+        <div className="max-w-2xl mx-auto text-center relative">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
+            Ready to add memory
+            <br />
+            to your agents?
           </h2>
-          <p className="text-gray-400 mb-8">
+          <p className="text-gray-400 mb-8 text-base sm:text-lg">
             Open source and free to use. Star us on GitHub!
           </p>
           <a
             href="https://github.com/mkhizeryounas/cluttr"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-8 py-3 bg-white text-black font-medium rounded-lg hover:bg-gray-200 transition-colors"
+            className="btn-glow inline-flex items-center gap-2 px-8 py-3.5 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-purple-500/25 transition-all hover:-translate-y-0.5"
           >
             <GitHubIcon />
             View on GitHub
@@ -522,12 +614,12 @@ async with memory:
       </section>
 
       {/* Footer */}
-      <footer className="py-12 px-6 border-t border-white/10">
+      <footer className="py-12 px-4 sm:px-6 border-t border-white/5">
         <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            <div>
-              <span className="text-xl font-bold">cluttr</span>
-              <p className="text-gray-400 text-sm mt-1">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-6">
+            <div className="text-center sm:text-left">
+              <Logo />
+              <p className="text-gray-500 text-sm mt-2">
                 Long-term memory for AI agents
               </p>
             </div>
