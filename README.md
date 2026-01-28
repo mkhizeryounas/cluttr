@@ -5,7 +5,11 @@ Long-term memory for AI agents using PostgreSQL vector storage.
 ## Installation
 
 ```bash
+# From PyPI
 uv add cluttr
+
+# From GitHub
+uv add git+https://github.com/mkhizeryounas/cluttr.git
 ```
 
 ## Quick Start
