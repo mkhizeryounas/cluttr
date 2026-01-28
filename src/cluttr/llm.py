@@ -116,9 +116,13 @@ class LLMService:
         return self._invoke_claude(messages=messages)
 
     def _format_conversation(self, messages: list[Message]) -> str:
-        """Format messages into a conversation string."""
+        """Format messages into a conversation string, excluding system messages."""
         lines = []
         for msg in messages:
+            # Skip system messages - we don't want to store system prompts
+            if msg.role.lower() == "system":
+                continue
+
             role = msg.role.capitalize()
             content = msg.get_text_content()
 
