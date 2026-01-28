@@ -4,22 +4,51 @@ from __future__ import annotations
 
 from typing import Any
 
-from cluttr.config import MemoryConfig
+from cluttr.config import CluttrConfig, CluttrConfigDict
 from cluttr.db import DatabaseService
 from cluttr.embeddings import EmbeddingService
 from cluttr.llm import LLMService
 from cluttr.models import Memory, Message, SearchResult
 
 
-class MemoryClient:
-    """Client for managing agent memories."""
+class Cluttr:
+    """Long-term memory for AI agents."""
 
-    def __init__(self, config: MemoryConfig) -> None:
-        """Initialize the memory client."""
-        self.config = config
-        self._db = DatabaseService(config)
-        self._embeddings = EmbeddingService(config.bedrock)
-        self._llm = LLMService(config.bedrock)
+    def __init__(self, config: CluttrConfigDict) -> None:
+        """
+        Initialize Cluttr memory.
+
+        Args:
+            config: Configuration dictionary
+                {
+                    "vector_db": {
+                        "engine": "postgres",  # Only 'postgres' supported
+                        "host": "localhost",
+                        "port": 5432,
+                        "database": "cluttr",
+                        "user": "postgres",
+                        "password": "...",
+                        # OR use connection_string instead:
+                        "connection_string": "postgresql://user:pass@host:port/db",
+                    },
+                    "llm": {
+                        "provider": "bedrock",  # Only 'bedrock' supported
+                        "region": "us-east-1",
+                        "model": "anthropic.claude-3-haiku-20240307-v1:0",
+                        "embedding_model": "amazon.titan-embed-text-v2:0",
+                        "aws_access_key_id": "...",  # Optional
+                        "aws_secret_access_key": "...",
+                        "aws_session_token": "...",
+                    },
+                    "default_user_id": "default_user",  # Optional
+                    "default_agent_id": "default_agent",  # Optional
+                    "similarity_threshold": 0.95,  # Optional
+                }
+        """
+        self._config = CluttrConfig(config)
+        self._db = DatabaseService(self._config)
+        self._embeddings = EmbeddingService(self._config.bedrock)
+        self._llm = LLMService(self._config.bedrock)
         self._connected = False
 
     async def connect(self) -> None:
@@ -32,12 +61,12 @@ class MemoryClient:
         await self._db.close()
         self._connected = False
 
-    async def __aenter__(self) -> MemoryClient:
+    async def __aenter__(self) -> Cluttr:
         """Async context manager entry."""
         await self.connect()
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
+    async def __aexit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         """Async context manager exit."""
         await self.close()
 
@@ -45,7 +74,7 @@ class MemoryClient:
         """Ensure the client is connected."""
         if not self._connected:
             raise RuntimeError(
-                "Client is not connected. Call connect() or use async context manager."
+                "Not connected. Call connect() or use 'async with' context manager."
             )
 
     async def add(
@@ -68,8 +97,8 @@ class MemoryClient:
         """
         self._ensure_connected()
 
-        user_id = user_id or self.config.default_user_id
-        agent_id = agent_id or self.config.default_agent_id
+        user_id = user_id or self._config.default_user_id
+        agent_id = agent_id or self._config.default_agent_id
 
         parsed_messages = [Message.from_dict(m) for m in messages]
 
@@ -119,8 +148,8 @@ class MemoryClient:
         """
         self._ensure_connected()
 
-        user_id = user_id or self.config.default_user_id
-        agent_id = agent_id or self.config.default_agent_id
+        user_id = user_id or self._config.default_user_id
+        agent_id = agent_id or self._config.default_agent_id
 
         embedding = self._embeddings.embed(query)
 
@@ -158,7 +187,7 @@ class MemoryClient:
             embedding=embedding,
             user_id=user_id,
             agent_id=agent_id,
-            threshold=self.config.similarity_threshold,
+            threshold=self._config.similarity_threshold,
             limit=1,
         )
 

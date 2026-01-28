@@ -6,7 +6,7 @@ import os
 
 import boto3
 
-from cluttr import MemoryConfig
+from cluttr import Cluttr
 
 
 async def main():
@@ -17,23 +17,37 @@ async def main():
     agent_id = input("Enter agent ID (or press Enter for 'default_agent'): ").strip()
     agent_id = agent_id or "default_agent"
 
-    # Get database connection string
-    db_url = os.environ.get("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/cluttr")
+    # Configuration
+    config = {
+        "vector_db": {
+            "engine": "postgres",
+            "host": os.environ.get("DB_HOST", "localhost"),
+            "port": int(os.environ.get("DB_PORT", "5432")),
+            "database": os.environ.get("DB_NAME", "cluttr"),
+            "user": os.environ.get("DB_USER", "postgres"),
+            "password": os.environ.get("DB_PASSWORD", "postgres"),
+        },
+        "llm": {
+            "provider": "bedrock",
+            "region": os.environ.get("AWS_REGION", "us-east-1"),
+            "model": "anthropic.claude-3-haiku-20240307-v1:0",
+            "embedding_model": "amazon.titan-embed-text-v2:0",
+            # AWS credentials from environment or IAM role
+        },
+        "default_user_id": user_id,
+        "default_agent_id": agent_id,
+    }
 
-    # Configure and connect
-    config = MemoryConfig.from_connection_string(
-        db_url,
-        default_user_id=user_id,
-        default_agent_id=agent_id,
-    )
+    # Create Cluttr memory instance
+    memory = Cluttr(config)
 
     # Create Bedrock client for chat
-    bedrock = boto3.client("bedrock-runtime", region_name=config.bedrock.region_name)
+    bedrock = boto3.client("bedrock-runtime", region_name=config["llm"]["region"])
 
     print(f"\nConnected as user '{user_id}' with agent '{agent_id}'")
     print("Type 'quit' to exit\n")
 
-    async with await config.connect() as client:
+    async with memory:
         messages = []
 
         while True:
@@ -45,7 +59,7 @@ async def main():
                 continue
 
             # Search for relevant memories
-            memories = await client.search(user_input, k=5, user_id=user_id, agent_id=agent_id)
+            memories = await memory.search(user_input, k=5)
 
             # Build context from memories
             memory_context = ""
@@ -63,7 +77,7 @@ async def main():
 
             # Call LLM
             response = bedrock.invoke_model(
-                modelId=config.bedrock.llm_model_id,
+                modelId=config["llm"]["model"],
                 body=json.dumps({
                     "anthropic_version": "bedrock-2023-05-31",
                     "max_tokens": 1024,
@@ -82,8 +96,8 @@ async def main():
 
             print(f"Assistant: {assistant_message}\n")
 
-            # Save conversation to memory
-            added = await client.add(messages[-2:], user_id=user_id, agent_id=agent_id)
+            # Save conversation to memory (only user + assistant, no system)
+            added = await memory.add(messages[-2:])
             if added:
                 print(f"  [Saved {len(added)} new memory/memories]\n")
 
