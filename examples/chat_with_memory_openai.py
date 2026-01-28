@@ -1,10 +1,9 @@
-"""Example: Chat with memory using cluttr and AWS Bedrock."""
+"""Example: Chat with memory using cluttr and OpenAI."""
 
 import asyncio
-import json
 import os
 
-import boto3
+import openai
 
 from cluttr import Cluttr
 
@@ -23,13 +22,10 @@ DB_NAME = os.environ.get("DB_NAME", "cluttr")
 DB_USER = os.environ.get("DB_USER", "postgres")
 DB_PASSWORD = os.environ.get("DB_PASSWORD", "postgres")
 
-# AWS/Bedrock configuration
-AWS_REGION = os.environ.get("AWS_REGION", "us-east-1")
-AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
-AWS_SESSION_TOKEN = os.environ.get("AWS_SESSION_TOKEN")
-LLM_MODEL = "anthropic.claude-3-haiku-20240307-v1:0"
-EMBEDDING_MODEL = "amazon.titan-embed-text-v2:0"
+# OpenAI configuration
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+LLM_MODEL = "gpt-4o-mini"
+EMBEDDING_MODEL = "text-embedding-3-small"
 
 
 async def main():
@@ -51,28 +47,18 @@ async def main():
             "password": DB_PASSWORD,
         },
         "llm": {
-            "provider": "bedrock",
-            "region": AWS_REGION,
+            "provider": "openai",
+            "api_key": OPENAI_API_KEY,
             "model": LLM_MODEL,
             "embedding_model": EMBEDDING_MODEL,
-            "aws_access_key_id": AWS_ACCESS_KEY_ID,
-            "aws_secret_access_key": AWS_SECRET_ACCESS_KEY,
-            "aws_session_token": AWS_SESSION_TOKEN,
         },
     }
 
     # Create Cluttr memory instance
     memory = Cluttr(config)
 
-    # Create Bedrock client for chat
-    bedrock_kwargs = {"region_name": AWS_REGION}
-    if AWS_ACCESS_KEY_ID:
-        bedrock_kwargs["aws_access_key_id"] = AWS_ACCESS_KEY_ID
-    if AWS_SECRET_ACCESS_KEY:
-        bedrock_kwargs["aws_secret_access_key"] = AWS_SECRET_ACCESS_KEY
-    if AWS_SESSION_TOKEN:
-        bedrock_kwargs["aws_session_token"] = AWS_SESSION_TOKEN
-    bedrock = boto3.client("bedrock-runtime", **bedrock_kwargs)
+    # Create OpenAI client for chat
+    client = openai.OpenAI(api_key=OPENAI_API_KEY)
 
     print(f"\nConnected as user '{user_id}' with agent '{agent_id}'")
     print("Type 'exit' to quit\n")
@@ -110,20 +96,13 @@ async def main():
             messages.append({"role": "user", "content": user_input})
 
             # Call LLM
-            response = bedrock.invoke_model(
-                modelId=LLM_MODEL,
-                body=json.dumps({
-                    "anthropic_version": "bedrock-2023-05-31",
-                    "max_tokens": 1024,
-                    "system": system_prompt,
-                    "messages": messages,
-                }),
-                contentType="application/json",
-                accept="application/json",
+            response = client.chat.completions.create(
+                model=LLM_MODEL,
+                messages=[{"role": "system", "content": system_prompt}, *messages],
+                max_tokens=1024,
             )
 
-            response_body = json.loads(response["body"].read())
-            assistant_message = response_body["content"][0]["text"]
+            assistant_message = response.choices[0].message.content
 
             # Add assistant response to history
             messages.append({"role": "assistant", "content": assistant_message})

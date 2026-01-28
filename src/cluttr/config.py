@@ -19,16 +19,29 @@ class VectorDBConfig(TypedDict, total=False):
     max_connections: int
 
 
-class LLMConfig(TypedDict, total=False):
-    """Configuration for LLM provider."""
+class BedrockLLMConfig(TypedDict, total=False):
+    """Configuration for Bedrock LLM provider."""
 
-    provider: str  # Only 'bedrock' supported
+    provider: str  # 'bedrock'
     region: str
-    model: str  # LLM model for extraction
-    embedding_model: str  # Model for embeddings
+    model: str
+    embedding_model: str
     aws_access_key_id: str
     aws_secret_access_key: str
     aws_session_token: str
+
+
+class OpenAILLMConfig(TypedDict, total=False):
+    """Configuration for OpenAI LLM provider."""
+
+    provider: str  # 'openai'
+    api_key: str
+    model: str
+    embedding_model: str
+    base_url: str  # For OpenAI-compatible APIs
+
+
+LLMConfig = BedrockLLMConfig | OpenAILLMConfig
 
 
 class CluttrConfigDict(TypedDict, total=False):
@@ -43,13 +56,25 @@ class CluttrConfigDict(TypedDict, total=False):
 class BedrockSettings:
     """Internal settings for AWS Bedrock."""
 
-    def __init__(self, config: LLMConfig) -> None:
+    def __init__(self, config: BedrockLLMConfig) -> None:
+        self.provider = "bedrock"
         self.region_name = config.get("region", "us-east-1")
         self.llm_model_id = config.get("model", "anthropic.claude-3-haiku-20240307-v1:0")
         self.embedding_model_id = config.get("embedding_model", "amazon.titan-embed-text-v2:0")
         self.aws_access_key_id = config.get("aws_access_key_id")
         self.aws_secret_access_key = config.get("aws_secret_access_key")
         self.aws_session_token = config.get("aws_session_token")
+
+
+class OpenAISettings:
+    """Internal settings for OpenAI."""
+
+    def __init__(self, config: OpenAILLMConfig) -> None:
+        self.provider = "openai"
+        self.api_key = config.get("api_key")
+        self.model = config.get("model", "gpt-4o-mini")
+        self.embedding_model = config.get("embedding_model", "text-embedding-3-small")
+        self.base_url = config.get("base_url")
 
 
 class PostgresSettings:
@@ -86,13 +111,22 @@ class CluttrConfig:
                 f"Unsupported vector_db engine: {engine}. Only 'postgres' is supported."
             )
 
-        # Validate provider
-        provider = llm.get("provider", "bedrock")
-        if provider != "bedrock":
-            raise ValueError(f"Unsupported llm provider: {provider}. Only 'bedrock' is supported.")
+        # Get provider
+        self.llm_provider = llm.get("provider", "bedrock")
+        if self.llm_provider not in ("bedrock", "openai"):
+            raise ValueError(
+                f"Unsupported llm provider: {self.llm_provider}. Supported: 'bedrock', 'openai'."
+            )
 
         self.postgres = PostgresSettings(vector_db)
-        self.bedrock = BedrockSettings(llm)
+
+        # Set up LLM settings based on provider
+        if self.llm_provider == "bedrock":
+            self.llm_settings: BedrockSettings | OpenAISettings = BedrockSettings(llm)
+            self.embedding_dimensions = 1024  # Titan
+        else:
+            self.llm_settings = OpenAISettings(llm)
+            self.embedding_dimensions = 1536  # text-embedding-3-small
+
         self.similarity_threshold = config.get("similarity_threshold", 0.95)
-        self.embedding_dimensions = 1024
         self.table_name = "memories"
