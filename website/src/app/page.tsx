@@ -311,7 +311,7 @@ export default function Home() {
           </div>
 
           <div
-            className={`max-w-2xl mx-auto transition-all duration-1000 delay-500 ${
+            className={`max-w-2xl mx-auto text-left transition-all duration-1000 delay-500 ${
               mounted ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-8 scale-95"
             }`}
           >
