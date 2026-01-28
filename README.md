@@ -64,6 +64,8 @@ asyncio.run(main())
 
 ## Configuration
 
+### AWS Bedrock Provider
+
 ```python
 config = {
     "vector_db": {
@@ -77,7 +79,7 @@ config = {
         # "connection_string": "postgresql://user:pass@host:port/db",
     },
     "llm": {
-        "provider": "bedrock",  # Only 'bedrock' supported
+        "provider": "bedrock",
         "region": "us-east-1",
         "model": "anthropic.claude-3-haiku-20240307-v1:0",  # Optional
         "embedding_model": "amazon.titan-embed-text-v2:0",  # Optional
@@ -86,6 +88,31 @@ config = {
         "aws_session_token": "...",
     },
     "similarity_threshold": 0.95,  # Optional, for duplicate detection
+}
+
+memory = Cluttr(config)
+```
+
+### OpenAI Provider
+
+```python
+config = {
+    "vector_db": {
+        "engine": "postgres",
+        "host": "localhost",
+        "port": 5432,
+        "database": "cluttr",
+        "user": "postgres",
+        "password": "secret",
+    },
+    "llm": {
+        "provider": "openai",
+        "api_key": "sk-...",
+        "model": "gpt-4o-mini",  # Optional, default: gpt-4o-mini
+        "embedding_model": "text-embedding-3-small",  # Optional
+        "base_url": "...",  # Optional, for custom endpoints
+    },
+    "similarity_threshold": 0.95,  # Optional
 }
 
 memory = Cluttr(config)
@@ -151,18 +178,20 @@ Supported image formats:
 
 ## Features
 
-- **Automatic Memory Extraction**: Uses Claude to extract important information from conversations
+- **Automatic Memory Extraction**: Uses LLM to extract important information from conversations
 - **Duplicate Detection**: Semantic similarity-based duplicate prevention
 - **Image Support**: Automatic image summarization for multimodal conversations
 - **PostgreSQL + pgvector**: Efficient vector similarity search
-- **AWS Bedrock**: Uses Titan for embeddings and Claude for extraction
+- **Multiple Providers**: Supports both AWS Bedrock and OpenAI
+  - **Bedrock**: Titan embeddings + Claude for extraction
+  - **OpenAI**: text-embedding-3-small + GPT-4o-mini
 - **Async Support**: Full async/await support
 
 ## Requirements
 
 - Python 3.11+
 - PostgreSQL with pgvector extension
-- AWS credentials configured for Bedrock access
+- AWS credentials (for Bedrock) or OpenAI API key
 
 ## License
 

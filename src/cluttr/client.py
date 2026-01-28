@@ -6,8 +6,8 @@ from typing import Any
 
 from cluttr.config import CluttrConfig, CluttrConfigDict
 from cluttr.db import DatabaseService
-from cluttr.embeddings import EmbeddingService
-from cluttr.llm import LLMService
+from cluttr.embeddings import create_embedding_service
+from cluttr.llm import create_llm_service
 from cluttr.models import Memory, Message, SearchResult
 
 
@@ -28,25 +28,27 @@ class Cluttr:
                         "database": "cluttr",
                         "user": "postgres",
                         "password": "...",
-                        # OR use connection_string instead:
-                        "connection_string": "postgresql://user:pass@host:port/db",
                     },
                     "llm": {
-                        "provider": "bedrock",  # Only 'bedrock' supported
+                        "provider": "bedrock",  # or "openai"
+                        # For bedrock:
                         "region": "us-east-1",
                         "model": "anthropic.claude-3-haiku-20240307-v1:0",
                         "embedding_model": "amazon.titan-embed-text-v2:0",
-                        "aws_access_key_id": "...",  # Optional
+                        "aws_access_key_id": "...",
                         "aws_secret_access_key": "...",
-                        "aws_session_token": "...",
+                        # For openai:
+                        "api_key": "...",
+                        "model": "gpt-4o-mini",
+                        "embedding_model": "text-embedding-3-small",
                     },
                     "similarity_threshold": 0.95,  # Optional
                 }
         """
         self._config = CluttrConfig(config)
         self._db = DatabaseService(self._config)
-        self._embeddings = EmbeddingService(self._config.bedrock)
-        self._llm = LLMService(self._config.bedrock)
+        self._embeddings = create_embedding_service(self._config.llm_settings)
+        self._llm = create_llm_service(self._config.llm_settings)
         self._connected = False
 
     async def connect(self) -> None:
@@ -71,9 +73,7 @@ class Cluttr:
     def _ensure_connected(self) -> None:
         """Ensure the client is connected."""
         if not self._connected:
-            raise RuntimeError(
-                "Not connected. Call connect() or use 'async with' context manager."
-            )
+            raise RuntimeError("Not connected. Call connect() or use 'async with' context manager.")
 
     async def add(
         self,
