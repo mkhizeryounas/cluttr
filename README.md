@@ -179,7 +179,7 @@ Supported image formats:
 ## Features
 
 - **Automatic Memory Extraction**: Uses LLM to extract important information from conversations
-- **Duplicate Detection**: Semantic similarity-based duplicate prevention
+- **Smart Duplicate Detection**: Uses LLM to determine if new facts are already covered
 - **Image Support**: Automatic image summarization for multimodal conversations
 - **PostgreSQL + pgvector**: Efficient vector similarity search
 - **Multiple Providers**: Supports both AWS Bedrock and OpenAI
@@ -187,11 +187,91 @@ Supported image formats:
   - **OpenAI**: text-embedding-3-small + GPT-4o-mini
 - **Async Support**: Full async/await support
 
+## Development
+
+```bash
+# Clone the repository
+git clone https://github.com/mkhizeryounas/cluttr.git
+cd cluttr
+
+# Install dependencies
+uv sync --all-extras
+
+# Install package in editable mode (required to run examples)
+uv pip install -e . --force-reinstall
+
+# Run examples
+uv run python examples/chat_with_memory_openai.py
+```
+
 ## Requirements
 
 - Python 3.11+
 - PostgreSQL with pgvector extension
 - AWS credentials (for Bedrock) or OpenAI API key
+
+## Supabase Setup
+
+Cluttr works with [Supabase](https://supabase.com) as the PostgreSQL backend.
+
+### 1. Enable pgvector Extension
+
+In your Supabase dashboard, go to **Database → Extensions** and enable the `vector` extension.
+
+Or run this SQL:
+
+```sql
+CREATE EXTENSION IF NOT EXISTS vector WITH SCHEMA extensions;
+```
+
+### 2. Configure Connection
+
+```python
+config = {
+    "vector_db": {
+        "engine": "postgres",
+        "host": "db.<project-ref>.supabase.co",
+        "port": 5432,
+        "database": "postgres",
+        "user": "postgres",
+        "password": "<your-db-password>",
+    },
+    "llm": {
+        "provider": "openai",
+        "api_key": "sk-...",
+    },
+}
+```
+
+Or use a connection string:
+
+```python
+config = {
+    "vector_db": {
+        "engine": "postgres",
+        "connection_string": "postgresql://postgres:<password>@db.<project-ref>.supabase.co:5432/postgres",
+    },
+    "llm": {
+        "provider": "openai",
+        "api_key": "sk-...",
+    },
+}
+```
+
+### 3. Table Schema
+
+Cluttr automatically creates the `cluttr_memories` table on first connection:
+
+```sql
+CREATE TABLE IF NOT EXISTS cluttr_memories (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    agent_id TEXT NOT NULL,
+    content TEXT NOT NULL,
+    embedding vector(1536),  -- 1536 for OpenAI, 1024 for Bedrock
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
 
 ## License
 

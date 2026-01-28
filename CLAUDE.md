@@ -10,12 +10,13 @@ cluttr/
 │   ├── __init__.py      # Exports: Cluttr, Memory, SearchResult
 │   ├── client.py        # Cluttr class - main API
 │   ├── config.py        # Configuration types and validation
-│   ├── db.py            # PostgreSQL/pgvector operations
-│   ├── embeddings.py    # Bedrock Titan embeddings
-│   ├── llm.py           # Claude Haiku for memory extraction
+│   ├── db.py            # PostgreSQL/pgvector operations (table: cluttr_memories)
+│   ├── embeddings/      # Embedding services (Bedrock, OpenAI)
+│   ├── llm/             # LLM services for memory extraction
 │   └── models.py        # Memory, Message, SearchResult models
 ├── examples/
-│   └── chat_with_memory.py  # Example chat application
+│   ├── chat_with_memory.py        # Example with Bedrock
+│   └── chat_with_memory_openai.py # Example with OpenAI
 ├── pyproject.toml       # Package config (uv)
 └── README.md
 ```
@@ -63,6 +64,7 @@ uv run mypy src/
 
 - **Async-only**: All database operations are async using asyncpg
 - **System messages skipped**: Memory extraction ignores system role messages
-- **Duplicate detection**: Uses semantic similarity (configurable threshold)
-- **Image support**: Images are summarized by Claude before storage
-- **Only postgres/bedrock**: Other providers not yet supported
+- **Duplicate detection**: Uses LLM to determine if new facts are already covered
+- **Image support**: Images are summarized by LLM before storage
+- **Providers**: Supports AWS Bedrock and OpenAI
+- **Supabase compatible**: Works with Supabase (pgvector in extensions schema)

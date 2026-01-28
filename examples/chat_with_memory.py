@@ -32,7 +32,7 @@ LLM_MODEL = "anthropic.claude-3-haiku-20240307-v1:0"
 EMBEDDING_MODEL = "amazon.titan-embed-text-v2:0"
 
 
-async def main():
+async def main() -> None:
     # Get user and agent IDs
     user_id = input("Enter user ID (or press Enter for 'default_user'): ").strip()
     user_id = user_id or "default_user"
@@ -89,17 +89,13 @@ async def main():
                 continue
 
             # Search for relevant memories
-            memories = await memory.search(
-                user_input, k=5, user_id=user_id, agent_id=agent_id
-            )
+            memories = await memory.search(user_input, k=5, user_id=user_id, agent_id=agent_id)
 
             # Build context from memories
             memory_context = ""
             if memories:
                 memory_lines = [f"- {m.memory.content}" for m in memories]
-                memory_context = (
-                    "Relevant information about this user:\n" + "\n".join(memory_lines)
-                )
+                memory_context = "Relevant information about this user:\n" + "\n".join(memory_lines)
 
             # Build system prompt with memory context
             system_prompt = "You are a helpful assistant."
@@ -112,12 +108,14 @@ async def main():
             # Call LLM
             response = bedrock.invoke_model(
                 modelId=LLM_MODEL,
-                body=json.dumps({
-                    "anthropic_version": "bedrock-2023-05-31",
-                    "max_tokens": 1024,
-                    "system": system_prompt,
-                    "messages": messages,
-                }),
+                body=json.dumps(
+                    {
+                        "anthropic_version": "bedrock-2023-05-31",
+                        "max_tokens": 1024,
+                        "system": system_prompt,
+                        "messages": messages,
+                    }
+                ),
                 contentType="application/json",
                 accept="application/json",
             )

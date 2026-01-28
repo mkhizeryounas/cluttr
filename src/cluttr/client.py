@@ -172,15 +172,21 @@ class Cluttr:
         user_id: str,
         agent_id: str,
     ) -> bool:
-        """Check if a memory is a duplicate based on semantic similarity."""
+        """Check if a memory is a duplicate using LLM reasoning."""
         embedding = self._embeddings.embed(content)
 
+        # Get top similar memories as candidates
         similar = await self._db.find_similar(
             embedding=embedding,
             user_id=user_id,
             agent_id=agent_id,
-            threshold=self._config.similarity_threshold,
-            limit=1,
+            threshold=0.5,  # Lower threshold to get more candidates for LLM to check
+            limit=5,
         )
 
-        return len(similar) > 0
+        if not similar:
+            return False
+
+        # Ask LLM if the new memory is covered by existing ones
+        existing_contents = [item[1] for item in similar]  # item = (id, content, similarity)
+        return self._llm.is_duplicate(content, existing_contents)

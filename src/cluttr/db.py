@@ -23,6 +23,13 @@ class DatabaseService:
     async def connect(self) -> None:
         """Connect to the database and set up tables."""
         connection_string = self.config.postgres.get_connection_string()
+        # First, create extension using a temporary connection
+        conn = await asyncpg.connect(connection_string)
+        try:
+            await conn.execute("CREATE EXTENSION IF NOT EXISTS vector")
+        finally:
+            await conn.close()
+        # Now create the pool with vector type registration
         self._pool = await asyncpg.create_pool(
             connection_string,
             min_size=self.config.postgres.min_connections,
@@ -33,13 +40,15 @@ class DatabaseService:
 
     async def _init_connection(self, conn: asyncpg.Connection) -> None:
         """Initialize connection with pgvector extension."""
-        await register_vector(conn)
+        # Try 'extensions' schema first (Supabase), then fall back to 'public'
+        try:
+            await register_vector(conn, schema="extensions")
+        except ValueError:
+            await register_vector(conn, schema="public")
 
     async def _setup_tables(self) -> None:
-        """Create necessary tables and extensions if they don't exist."""
+        """Create necessary tables if they don't exist."""
         async with self._pool.acquire() as conn:
-            await conn.execute("CREATE EXTENSION IF NOT EXISTS vector")
-
             await conn.execute(f"""
                 CREATE TABLE IF NOT EXISTS {self.config.table_name} (
                     id TEXT PRIMARY KEY,
@@ -120,7 +129,7 @@ class DatabaseService:
         agent_id: str,
         k: int = 10,
     ) -> list[dict]:
-        """Search for similar memories."""
+        """Search for similar memories, sorted by newest first."""
         async with self._pool.acquire() as conn:
             rows = await conn.fetch(
                 f"""
@@ -128,7 +137,7 @@ class DatabaseService:
                        1 - (embedding <=> $1) as similarity
                 FROM {self.config.table_name}
                 WHERE user_id = $2 AND agent_id = $3
-                ORDER BY embedding <=> $1
+                ORDER BY created_at DESC
                 LIMIT $4
                 """,
                 embedding,

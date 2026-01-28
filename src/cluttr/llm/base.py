@@ -10,30 +10,36 @@ if TYPE_CHECKING:
     from cluttr.models import Message
 
 
-EXTRACTION_PROMPT = """Analyze the following conversation and extract the most important \
-and useful information that should be remembered for future interactions. Focus on:
-- Key facts about the user (preferences, background, goals)
-- Important decisions or conclusions reached
-- Specific requests or requirements mentioned
-- Any information that would be valuable to remember in future conversations
+EXTRACTION_PROMPT = """Extract key facts about the user from this conversation.
 
-Return ONLY a JSON array of strings, where each string is a distinct piece of \
-information worth remembering. If there's nothing worth remembering, return an empty array [].
+Rules:
+- Return 0-2 facts maximum (only the most important)
+- Combine related facts into one (e.g., "User likes JS, TS, and Bun" not separate)
+- Skip greetings, small talk, and task-specific details
+- Focus on lasting preferences, personal info, or important context
 
-Example output format:
-["User prefers Python over JavaScript", "User is building a chatbot for customer service", \
-"User's deadline is end of March"]
+Return a JSON array of strings. Return [] if nothing important.
 
 Conversation:
 {conversation}
 
-Important information to remember (JSON array only):"""
+JSON array:"""
 
 
 IMAGE_SUMMARY_PROMPT = (
     "Describe this image in detail, focusing on the key information it contains. "
     "Be concise but comprehensive. If the image contains text, include the relevant text content."
 )
+
+DEDUP_PROMPT = """I want to save this new fact about a user:
+"{new_memory}"
+
+Here are the existing memories I already have:
+{existing_memories}
+
+Is this new fact already covered by any existing memory? Answer with just "YES" or "NO".
+- YES if the new fact is redundant, a duplicate, or already implied by existing memories
+- NO if the new fact adds genuinely new information"""
 
 
 class BaseLLMService(ABC):
@@ -88,3 +94,14 @@ class BaseLLMService(ABC):
 
             lines.append(f"{role}: {content}")
         return "\n".join(lines)
+
+    def is_duplicate(self, new_memory: str, existing_memories: list[str]) -> bool:
+        """Check if a new memory is a duplicate of existing memories using LLM."""
+        if not existing_memories:
+            return False
+
+        existing_list = "\n".join(f"- {m}" for m in existing_memories)
+        prompt = DEDUP_PROMPT.format(new_memory=new_memory, existing_memories=existing_list)
+
+        response = self._invoke(messages=[{"role": "user", "content": prompt}])
+        return response.strip().upper().startswith("YES")

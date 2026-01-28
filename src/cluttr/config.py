@@ -128,5 +128,5 @@ class CluttrConfig:
             self.llm_settings = OpenAISettings(llm)
             self.embedding_dimensions = 1536  # text-embedding-3-small
 
-        self.similarity_threshold = config.get("similarity_threshold", 0.95)
-        self.table_name = "memories"
+        self.similarity_threshold = config.get("similarity_threshold", 0.75)
+        self.table_name = "cluttr_memories"
