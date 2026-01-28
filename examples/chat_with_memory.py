@@ -8,6 +8,18 @@ import boto3
 
 from cluttr import Cluttr
 
+# Database configuration
+DB_HOST = os.environ.get("DB_HOST", "localhost")
+DB_PORT = int(os.environ.get("DB_PORT", "5432"))
+DB_NAME = os.environ.get("DB_NAME", "cluttr")
+DB_USER = os.environ.get("DB_USER", "postgres")
+DB_PASSWORD = os.environ.get("DB_PASSWORD", "postgres")
+
+# AWS/Bedrock configuration
+AWS_REGION = os.environ.get("AWS_REGION", "us-east-1")
+LLM_MODEL = "anthropic.claude-3-haiku-20240307-v1:0"
+EMBEDDING_MODEL = "amazon.titan-embed-text-v2:0"
+
 
 async def main():
     # Get user and agent IDs
@@ -21,18 +33,17 @@ async def main():
     config = {
         "vector_db": {
             "engine": "postgres",
-            "host": os.environ.get("DB_HOST", "localhost"),
-            "port": int(os.environ.get("DB_PORT", "5432")),
-            "database": os.environ.get("DB_NAME", "cluttr"),
-            "user": os.environ.get("DB_USER", "postgres"),
-            "password": os.environ.get("DB_PASSWORD", "postgres"),
+            "host": DB_HOST,
+            "port": DB_PORT,
+            "database": DB_NAME,
+            "user": DB_USER,
+            "password": DB_PASSWORD,
         },
         "llm": {
             "provider": "bedrock",
-            "region": os.environ.get("AWS_REGION", "us-east-1"),
-            "model": "anthropic.claude-3-haiku-20240307-v1:0",
-            "embedding_model": "amazon.titan-embed-text-v2:0",
-            # AWS credentials from environment or IAM role
+            "region": AWS_REGION,
+            "model": LLM_MODEL,
+            "embedding_model": EMBEDDING_MODEL,
         },
         "default_user_id": user_id,
         "default_agent_id": agent_id,
@@ -42,7 +53,7 @@ async def main():
     memory = Cluttr(config)
 
     # Create Bedrock client for chat
-    bedrock = boto3.client("bedrock-runtime", region_name=config["llm"]["region"])
+    bedrock = boto3.client("bedrock-runtime", region_name=AWS_REGION)
 
     print(f"\nConnected as user '{user_id}' with agent '{agent_id}'")
     print("Type 'quit' to exit\n")
@@ -77,7 +88,7 @@ async def main():
 
             # Call LLM
             response = bedrock.invoke_model(
-                modelId=config["llm"]["model"],
+                modelId=LLM_MODEL,
                 body=json.dumps({
                     "anthropic_version": "bedrock-2023-05-31",
                     "max_tokens": 1024,
