@@ -1,5 +1,7 @@
 # Cluttr
 
+[![Lint](https://github.com/mkhizeryounas/cluttr/actions/workflows/lint.yml/badge.svg)](https://github.com/mkhizeryounas/cluttr/actions/workflows/lint.yml)
+
 Long-term memory for AI agents using PostgreSQL vector storage.
 
 ## Installation

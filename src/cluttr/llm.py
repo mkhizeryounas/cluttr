@@ -15,16 +15,19 @@ if TYPE_CHECKING:
     from cluttr.models import Message
 
 
-EXTRACTION_PROMPT = """Analyze the following conversation and extract the most important and useful information that should be remembered for future interactions. Focus on:
+EXTRACTION_PROMPT = """Analyze the following conversation and extract the most important \
+and useful information that should be remembered for future interactions. Focus on:
 - Key facts about the user (preferences, background, goals)
 - Important decisions or conclusions reached
 - Specific requests or requirements mentioned
 - Any information that would be valuable to remember in future conversations
 
-Return ONLY a JSON array of strings, where each string is a distinct piece of information worth remembering. If there's nothing worth remembering, return an empty array [].
+Return ONLY a JSON array of strings, where each string is a distinct piece of \
+information worth remembering. If there's nothing worth remembering, return an empty array [].
 
 Example output format:
-["User prefers Python over JavaScript", "User is building a chatbot for customer service", "User's deadline is end of March"]
+["User prefers Python over JavaScript", "User is building a chatbot for customer service", \
+"User's deadline is end of March"]
 
 Conversation:
 {conversation}
@@ -32,7 +35,10 @@ Conversation:
 Important information to remember (JSON array only):"""
 
 
-IMAGE_SUMMARY_PROMPT = """Describe this image in detail, focusing on the key information it contains. Be concise but comprehensive. If the image contains text, include the relevant text content."""
+IMAGE_SUMMARY_PROMPT = (
+    "Describe this image in detail, focusing on the key information it contains. "
+    "Be concise but comprehensive. If the image contains text, include the relevant text content."
+)
 
 
 class LLMService:

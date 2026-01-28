@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, TypedDict
+from typing import TypedDict
 
 
 class VectorDBConfig(TypedDict, total=False):
@@ -82,7 +82,9 @@ class CluttrConfig:
         # Validate engine
         engine = vector_db.get("engine", "postgres")
         if engine != "postgres":
-            raise ValueError(f"Unsupported vector_db engine: {engine}. Only 'postgres' is supported.")
+            raise ValueError(
+                f"Unsupported vector_db engine: {engine}. Only 'postgres' is supported."
+            )
 
         # Validate provider
         provider = llm.get("provider", "bedrock")
