@@ -17,6 +17,9 @@ DB_PASSWORD = os.environ.get("DB_PASSWORD", "postgres")
 
 # AWS/Bedrock configuration
 AWS_REGION = os.environ.get("AWS_REGION", "us-east-1")
+AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
+AWS_SESSION_TOKEN = os.environ.get("AWS_SESSION_TOKEN")
 LLM_MODEL = "anthropic.claude-3-haiku-20240307-v1:0"
 EMBEDDING_MODEL = "amazon.titan-embed-text-v2:0"
 
@@ -44,6 +47,9 @@ async def main():
             "region": AWS_REGION,
             "model": LLM_MODEL,
             "embedding_model": EMBEDDING_MODEL,
+            "aws_access_key_id": AWS_ACCESS_KEY_ID,
+            "aws_secret_access_key": AWS_SECRET_ACCESS_KEY,
+            "aws_session_token": AWS_SESSION_TOKEN,
         },
         "default_user_id": user_id,
         "default_agent_id": agent_id,
@@ -53,7 +59,14 @@ async def main():
     memory = Cluttr(config)
 
     # Create Bedrock client for chat
-    bedrock = boto3.client("bedrock-runtime", region_name=AWS_REGION)
+    bedrock_kwargs = {"region_name": AWS_REGION}
+    if AWS_ACCESS_KEY_ID:
+        bedrock_kwargs["aws_access_key_id"] = AWS_ACCESS_KEY_ID
+    if AWS_SECRET_ACCESS_KEY:
+        bedrock_kwargs["aws_secret_access_key"] = AWS_SECRET_ACCESS_KEY
+    if AWS_SESSION_TOKEN:
+        bedrock_kwargs["aws_session_token"] = AWS_SESSION_TOKEN
+    bedrock = boto3.client("bedrock-runtime", **bedrock_kwargs)
 
     print(f"\nConnected as user '{user_id}' with agent '{agent_id}'")
     print("Type 'quit' to exit\n")
