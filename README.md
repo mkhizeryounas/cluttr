@@ -4,7 +4,7 @@
 
 Long-term memory for AI agents using PostgreSQL vector storage.
 
-🌐 [cluttr-co.vercel.app](https://cluttr-co.vercel.app)
+🌐 [https://www.cluttr.co](https://cluttr-co.vercel.app)
 
 ## Installation
 
