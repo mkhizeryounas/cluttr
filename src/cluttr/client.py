@@ -71,9 +71,7 @@ class Cluttr:
     def _ensure_connected(self) -> None:
         """Ensure the client is connected."""
         if not self._connected:
-            raise RuntimeError(
-                "Not connected. Call connect() or use 'async with' context manager."
-            )
+            raise RuntimeError("Not connected. Call connect() or use 'async with' context manager.")
 
     async def add(
         self,

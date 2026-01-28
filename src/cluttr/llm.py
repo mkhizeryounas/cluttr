@@ -63,9 +63,7 @@ class LLMService:
             self._client = boto3.client("bedrock-runtime", **kwargs)
         return self._client
 
-    def _invoke_claude(
-        self, messages: list[dict[str, Any]], system: str | None = None
-    ) -> str:
+    def _invoke_claude(self, messages: list[dict[str, Any]], system: str | None = None) -> str:
         """Invoke Claude model and return the response text."""
         body: dict[str, Any] = {
             "anthropic_version": "bedrock-2023-05-31",
@@ -90,9 +88,7 @@ class LLMService:
         conversation_text = self._format_conversation(messages)
         prompt = EXTRACTION_PROMPT.format(conversation=conversation_text)
 
-        response = self._invoke_claude(
-            messages=[{"role": "user", "content": prompt}]
-        )
+        response = self._invoke_claude(messages=[{"role": "user", "content": prompt}])
 
         try:
             start = response.find("[")
