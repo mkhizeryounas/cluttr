@@ -79,8 +79,6 @@ config = {
         "aws_secret_access_key": "...",
         "aws_session_token": "...",
     },
-    "default_user_id": "default_user",  # Optional
-    "default_agent_id": "default_agent",  # Optional
     "similarity_threshold": 0.95,  # Optional, for duplicate detection
 }
 
@@ -95,7 +93,7 @@ memory = Cluttr(config)
 # Add with specific user/agent
 await memory.add(messages, user_id="user_123", agent_id="agent_456")
 
-# Add with default user/agent (from config)
+# Add with defaults (user_id="default_user", agent_id="default_agent")
 await memory.add(messages)
 ```
 

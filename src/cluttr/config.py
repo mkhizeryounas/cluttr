@@ -36,8 +36,6 @@ class CluttrConfigDict(TypedDict, total=False):
 
     vector_db: VectorDBConfig
     llm: LLMConfig
-    default_user_id: str
-    default_agent_id: str
     similarity_threshold: float
 
 
@@ -93,8 +91,6 @@ class CluttrConfig:
 
         self.postgres = PostgresSettings(vector_db)
         self.bedrock = BedrockSettings(llm)
-        self.default_user_id = config.get("default_user_id", "default_user")
-        self.default_agent_id = config.get("default_agent_id", "default_agent")
         self.similarity_threshold = config.get("similarity_threshold", 0.95)
         self.embedding_dimensions = 1024
         self.table_name = "memories"

@@ -40,8 +40,6 @@ class Cluttr:
                         "aws_secret_access_key": "...",
                         "aws_session_token": "...",
                     },
-                    "default_user_id": "default_user",  # Optional
-                    "default_agent_id": "default_agent",  # Optional
                     "similarity_threshold": 0.95,  # Optional
                 }
         """
@@ -80,8 +78,8 @@ class Cluttr:
     async def add(
         self,
         messages: list[dict[str, Any]],
-        user_id: str | None = None,
-        agent_id: str | None = None,
+        user_id: str = "default_user",
+        agent_id: str = "default_agent",
     ) -> list[Memory]:
         """
         Add memories from a conversation.
@@ -89,16 +87,13 @@ class Cluttr:
         Args:
             messages: List of messages in OpenAI format
                       [{"role": "user", "content": "..."}]
-            user_id: User ID (uses default if not provided)
-            agent_id: Agent ID (uses default if not provided)
+            user_id: User ID (default: "default_user")
+            agent_id: Agent ID (default: "default_agent")
 
         Returns:
             List of memories that were added
         """
         self._ensure_connected()
-
-        user_id = user_id or self._config.default_user_id
-        agent_id = agent_id or self._config.default_agent_id
 
         parsed_messages = [Message.from_dict(m) for m in messages]
 
@@ -131,8 +126,8 @@ class Cluttr:
         self,
         query: str,
         k: int = 10,
-        user_id: str | None = None,
-        agent_id: str | None = None,
+        user_id: str = "default_user",
+        agent_id: str = "default_agent",
     ) -> list[SearchResult]:
         """
         Search for relevant memories.
@@ -140,16 +135,13 @@ class Cluttr:
         Args:
             query: Search query text
             k: Number of results to return (default 10)
-            user_id: User ID to filter by (uses default if not provided)
-            agent_id: Agent ID to filter by (uses default if not provided)
+            user_id: User ID to filter by (default: "default_user")
+            agent_id: Agent ID to filter by (default: "default_agent")
 
         Returns:
             List of SearchResult objects with memory and similarity score
         """
         self._ensure_connected()
-
-        user_id = user_id or self._config.default_user_id
-        agent_id = agent_id or self._config.default_agent_id
 
         embedding = self._embeddings.embed(query)
 

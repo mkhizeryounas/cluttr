@@ -51,8 +51,6 @@ async def main():
             "aws_secret_access_key": AWS_SECRET_ACCESS_KEY,
             "aws_session_token": AWS_SESSION_TOKEN,
         },
-        "default_user_id": user_id,
-        "default_agent_id": agent_id,
     }
 
     # Create Cluttr memory instance
@@ -69,7 +67,7 @@ async def main():
     bedrock = boto3.client("bedrock-runtime", **bedrock_kwargs)
 
     print(f"\nConnected as user '{user_id}' with agent '{agent_id}'")
-    print("Type 'quit' to exit\n")
+    print("Type 'exit' to quit\n")
 
     async with memory:
         messages = []
@@ -77,13 +75,13 @@ async def main():
         while True:
             # Get user input
             user_input = input("You: ").strip()
-            if user_input.lower() == "quit":
+            if user_input.lower() == "exit":
                 break
             if not user_input:
                 continue
 
             # Search for relevant memories
-            memories = await memory.search(user_input, k=5)
+            memories = await memory.search(user_input, k=5, user_id=user_id, agent_id=agent_id)
 
             # Build context from memories
             memory_context = ""
@@ -121,7 +119,7 @@ async def main():
             print(f"Assistant: {assistant_message}\n")
 
             # Save conversation to memory (only user + assistant, no system)
-            added = await memory.add(messages[-2:])
+            added = await memory.add(messages[-2:], user_id=user_id, agent_id=agent_id)
             if added:
                 print(f"  [Saved {len(added)} new memory/memories]\n")
 
