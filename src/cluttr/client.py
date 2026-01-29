@@ -143,7 +143,8 @@ class Cluttr:
         """
         self._ensure_connected()
 
-        embedding = self._embeddings.embed(query)
+        search_query = self._llm.expand_query(query)
+        embedding = self._embeddings.embed(search_query)
 
         results = await self._db.search(
             embedding=embedding,

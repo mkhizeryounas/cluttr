@@ -42,6 +42,19 @@ Is this new fact already covered by any existing memory? Answer with just "YES" 
 - NO if the new fact adds genuinely new information"""
 
 
+QUERY_EXPANSION_PROMPT = """Rewrite this search query for vector search.
+
+Query: {query}
+
+Rules:
+- Convert questions to statements (e.g., "What language?" -> "prefers language")
+- Keep it concise (5-10 words max)
+- Focus on key concepts that would match stored facts
+- Return ONLY the rewritten query, nothing else
+
+Rewritten query:"""
+
+
 class BaseLLMService(ABC):
     """Abstract base class for LLM services."""
 
@@ -105,3 +118,11 @@ class BaseLLMService(ABC):
 
         response = self._invoke(messages=[{"role": "user", "content": prompt}])
         return response.strip().upper().startswith("YES")
+
+    def expand_query(self, query: str) -> str:
+        """Expand a search query for better semantic matching."""
+        prompt = QUERY_EXPANSION_PROMPT.format(query=query)
+        response = self._invoke(messages=[{"role": "user", "content": prompt}])
+        expanded = response.strip()
+        # Return expanded query, or original if expansion fails
+        return expanded if expanded else query
