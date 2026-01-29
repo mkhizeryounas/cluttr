@@ -5,6 +5,9 @@ export const metadata: Metadata = {
   title: "Cluttr - Long-term Memory for AI Agents",
   description:
     "Add persistent memory to your AI agents with semantic search and automatic fact extraction. Supports OpenAI and AWS Bedrock.",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({
