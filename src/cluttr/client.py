@@ -128,7 +128,6 @@ class Cluttr:
         k: int = 10,
         user_id: str = "default_user",
         agent_id: str = "default_agent",
-        expand_query: bool = True,
     ) -> list[SearchResult]:
         """
         Search for relevant memories.
@@ -138,14 +137,13 @@ class Cluttr:
             k: Number of results to return (default 10)
             user_id: User ID to filter by (default: "default_user")
             agent_id: Agent ID to filter by (default: "default_agent")
-            expand_query: Use LLM to optimize query for vector search (default: True)
 
         Returns:
             List of SearchResult objects with memory and similarity score
         """
         self._ensure_connected()
 
-        search_query = self._llm.expand_query(query) if expand_query else query
+        search_query = self._llm.expand_query(query)
         embedding = self._embeddings.embed(search_query)
 
         results = await self._db.search(
