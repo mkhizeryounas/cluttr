@@ -325,7 +325,7 @@ async with memory:
     await memory.add(messages, user_id="user_123")
 
     # Search relevant memories
-    results = await memory.search("What does the user prefer?", user_id="user_123")`}
+    results = await memory.search("programming language preferences", user_id="user_123")`}
             >
               <code>
                 <span className="token-keyword">from</span> cluttr{" "}
@@ -352,7 +352,7 @@ async with memory:
                 results = <span className="token-keyword">await</span>{" "}
                 memory.search(
                 <span className="token-string">
-                  &quot;...&quot;
+                  &quot;programming language preferences&quot;
                 </span>
                 , user_id=
                 <span className="token-string">&quot;user_123&quot;</span>)
