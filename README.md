@@ -180,14 +180,13 @@ Supported image formats:
 
 ## Features
 
-- **Automatic Memory Extraction**: Uses LLM to extract important information from conversations
-- **Smart Duplicate Detection**: Uses LLM to determine if new facts are already covered
-- **Image Support**: Automatic image summarization for multimodal conversations
-- **PostgreSQL + pgvector**: Efficient vector similarity search
-- **Multiple Providers**: Supports both AWS Bedrock and OpenAI
-  - **Bedrock**: Titan embeddings + Claude for extraction
-  - **OpenAI**: text-embedding-3-small + GPT-4o-mini
-- **Async Support**: Full async/await support
+- **Automatic Memory Extraction**: LLM extracts important facts from conversations
+- **Smart Query Expansion**: Search queries are automatically optimized for vector matching
+- **Duplicate Detection**: LLM-powered deduplication prevents redundant memories
+- **Image Support**: Images are automatically summarized and stored as searchable memories
+- **PostgreSQL + pgvector**: Battle-tested vector similarity search
+- **Multiple Providers**: AWS Bedrock (Claude + Titan) and OpenAI (GPT-4o-mini)
+- **Async Native**: Full async/await support
 
 ## Development
 

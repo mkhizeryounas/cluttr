@@ -115,7 +115,7 @@ const features = [
     ),
     title: "Automatic Extraction",
     description:
-      "LLM-powered extraction of important facts, preferences, and context from conversations.",
+      "LLM extracts important facts, preferences, and context from conversations automatically.",
   },
   {
     icon: (
@@ -131,9 +131,9 @@ const features = [
         <path d="m21 21-4.35-4.35" />
       </svg>
     ),
-    title: "Semantic Search",
+    title: "Smart Query Expansion",
     description:
-      "Find relevant memories using vector similarity search powered by pgvector.",
+      "Queries are automatically optimized by LLM for better semantic vector matching.",
   },
   {
     icon: (
@@ -152,7 +152,7 @@ const features = [
     ),
     title: "Image Support",
     description:
-      "Automatic summarization of images in conversations. Supports base64, URLs, and file paths.",
+      "Images in conversations are automatically summarized and stored as searchable memories.",
   },
   {
     icon: (
@@ -171,7 +171,7 @@ const features = [
     ),
     title: "Duplicate Detection",
     description:
-      "Smart semantic similarity checks prevent storing redundant information.",
+      "LLM-powered deduplication prevents storing redundant or semantically similar facts.",
   },
   {
     icon: (
@@ -188,7 +188,7 @@ const features = [
     ),
     title: "Multiple Providers",
     description:
-      "Works with OpenAI (GPT-4o-mini) and AWS Bedrock (Claude + Titan).",
+      "Works with OpenAI (GPT-4o-mini) and AWS Bedrock (Claude + Titan embeddings).",
   },
   {
     icon: (
@@ -200,12 +200,14 @@ const features = [
         stroke="currentColor"
         strokeWidth="2"
       >
-        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+        <ellipse cx="12" cy="5" rx="9" ry="3" />
+        <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
+        <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
       </svg>
     ),
-    title: "Async Native",
+    title: "PostgreSQL + pgvector",
     description:
-      "Built with async/await from the ground up for high-performance applications.",
+      "Built on battle-tested PostgreSQL with pgvector for reliable vector similarity search.",
   },
 ];
 
