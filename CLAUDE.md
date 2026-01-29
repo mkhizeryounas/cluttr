@@ -65,6 +65,21 @@ uv run mypy src/
 - **Async-only**: All database operations are async using asyncpg
 - **System messages skipped**: Memory extraction ignores system role messages
 - **Duplicate detection**: Uses LLM to determine if new facts are already covered
+- **Query expansion**: Search queries are automatically optimized by LLM for better vector matching
 - **Image support**: Images are summarized by LLM before storage
 - **Providers**: Supports AWS Bedrock and OpenAI
 - **Supabase compatible**: Works with Supabase (pgvector in extensions schema)
+
+## Versioning
+
+**Important**: When making changes to the package (src/cluttr/), bump the version in `pyproject.toml` before committing. The package is published to PyPI, so version updates are required for new releases.
+
+```bash
+# Version is in pyproject.toml
+version = "0.1.0"  # Update this
+```
+
+Follow semantic versioning:
+- **Patch** (0.1.x): Bug fixes
+- **Minor** (0.x.0): New features, backward compatible
+- **Major** (x.0.0): Breaking changes

@@ -1,5 +1,6 @@
 # Cluttr
 
+[![PyPI](https://img.shields.io/pypi/v/cluttr)](https://pypi.org/project/cluttr/)
 [![Lint](https://github.com/mkhizeryounas/cluttr/actions/workflows/lint.yml/badge.svg)](https://github.com/mkhizeryounas/cluttr/actions/workflows/lint.yml)
 
 Long-term memory for AI agents using PostgreSQL vector storage.
